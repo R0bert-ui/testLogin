@@ -10,15 +10,8 @@ if (isset($_SESSION['username'])) {
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Вход в систему</title>
+<title>Регистрация</title>
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
     body {
         font-family: Arial, sans-serif;
         background-color: #f5f5f5;
@@ -28,8 +21,8 @@ if (isset($_SESSION['username'])) {
         height: 100vh;
     }
 
-    .login-form {
-        background-color: #ffffff;
+    .register-form {
+        background-color: #fff;
         padding: 30px 40px;
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -39,8 +32,7 @@ if (isset($_SESSION['username'])) {
     h2 {
         text-align: center;
         margin-bottom: 25px;
-        color: #333333;
-        font-weight: 600;
+        color: #333;
     }
 
     .form-group {
@@ -50,42 +42,42 @@ if (isset($_SESSION['username'])) {
     label {
         display: block;
         margin-bottom: 6px;
-        color: #555555;
+        color: #555;
         font-size: 14px;
     }
 
-    input[type="text"],
-    input[type="password"] {
+    input {
         width: 100%;
         padding: 10px 12px;
-        border: 1.5px solid #cccccc;
+        border: 1.5px solid #ccc;
         border-radius: 4px;
         font-size: 15px;
-        transition: border-color 0.3s ease;
-    }
-
-    input[type="text"]:focus,
-    input[type="password"]:focus {
-        border-color: #3366cc;
-        outline: none;
-        box-shadow: 0 0 6px rgba(51, 102, 204, 0.4);
     }
 
     button {
         width: 100%;
         padding: 12px;
-        background-color:#28a745;
+        background-color: #28a745;
         color: white;
         font-size: 16px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
         font-weight: 600;
     }
 
     button:hover {
-        background-color:#218838;
+        background-color: #218838;
+    }
+
+    .link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .link a {
+        color: #3366cc;
+        text-decoration: none;
     }
 
     .error {
@@ -94,38 +86,48 @@ if (isset($_SESSION['username'])) {
         text-align: center;
         font-size: 14px;
     }
+
+    .success {
+        color: #28a745;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 14px;
+    }
 </style>
 </head>
 <body>
 
-<div class="login-form">
-    <h2>Вход в систему</h2>
+<div class="register-form">
+    <h2>Регистрация</h2>
 
-    <?php if (!empty($_SESSION['error'])): ?>
-        <div class="error"><?= htmlspecialchars($_SESSION['error']) ?></div>
-        <?php unset($_SESSION['error']); ?>
+    <?php if (!empty($_SESSION['reg_error'])): ?>
+        <div class="error"><?= htmlspecialchars($_SESSION['reg_error']) ?></div>
+        <?php unset($_SESSION['reg_error']); ?>
     <?php endif; ?>
 
-    <form action="login.php" method="POST">
+    <?php if (!empty($_SESSION['reg_success'])): ?>
+        <div class="success"><?= htmlspecialchars($_SESSION['reg_success']) ?></div>
+        <?php unset($_SESSION['reg_success']); ?>
+    <?php endif; ?>
+
+    <form action="register_handler.php" method="POST">
         <div class="form-group">
             <label for="username">Логин:</label>
-            <input type="text" id="username" name="username" required placeholder="Введите логин" />
+            <input type="text" id="username" name="username" required placeholder="Придумайте логин" />
         </div>
 
         <div class="form-group">
             <label for="password">Пароль:</label>
-            <input type="password" id="password" name="password" required placeholder="Введите пароль" />
+            <input type="password" id="password" name="password" required placeholder="Придумайте пароль" />
         </div>
 
-        <button type="submit">Войти</button>
-        <div class="link" style="text-align:center; margin-top:15px;">
-    Нет аккаунта? <a href="register.php">Зарегистрироваться</a>
-</div>
-
+        <button type="submit">Зарегистрироваться</button>
     </form>
+
+    <div class="link">
+        Уже есть аккаунт? <a href="index.php">Войти</a>
+    </div>
 </div>
 
 </body>
 </html>
-
-
