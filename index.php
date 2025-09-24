@@ -29,7 +29,7 @@ if (isset($_SESSION['username'])) {
     }
 
     .login-form {
-        background-color: #ffffff;
+        background-color: #fff;
         padding: 30px 40px;
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -93,6 +93,15 @@ if (isset($_SESSION['username'])) {
         margin-bottom: 15px;
         text-align: center;
         font-size: 14px;
+    }
+    .link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .link a {
+        color: #3366cc;
+        text-decoration: none;
     }
 </style>
 </head>

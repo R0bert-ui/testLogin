@@ -12,14 +12,18 @@ if (isset($_SESSION['username'])) {
 <meta charset="UTF-8" />
 <title>Регистрация</title>
 <style>
-    body {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+   body {
         font-family: Arial, sans-serif;
         background-color: #f5f5f5;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-    }
+        height: 100vh;}
 
     .register-form {
         background-color: #fff;
