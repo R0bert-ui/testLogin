@@ -12,8 +12,8 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $conn->real_escape_string($_POST['username'] ?? '');
-    $password = $conn->real_escape_string($_POST['password'] ?? '');
+    $username = trim($_POST['username'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
     if ($username === '' || $password === '') {
         $_SESSION['reg_error'] = "Пожалуйста, заполните все поля.";
@@ -21,8 +21,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Проверим, существует ли уже пользователь
-    $check_sql = "SELECT * FROM users WHERE user = '$username' LIMIT 1";
+    // Проверка длины логина
+    if (mb_strlen($username) < 4 || mb_strlen($username) > 16) {
+        $_SESSION['reg_error'] = "Логин должен быть от 4 до 16 символов.";
+        header("Location: register.php");
+        exit();
+    }
+
+    // Проверка длины пароля
+    if (mb_strlen($password) < 8 || mb_strlen($password) > 16) {
+        $_SESSION['reg_error'] = "Пароль должен быть от 8 до 16 символов.";
+        header("Location: register.php");
+        exit();
+    }
+
+    $username_esc = $conn->real_escape_string($username);
+
+    $check_sql = "SELECT * FROM users WHERE user = '$username_esc' LIMIT 1";
     $check_result = $conn->query($check_sql);
     if ($check_result && $check_result->num_rows > 0) {
         $_SESSION['reg_error'] = "Логин уже занят.";
@@ -30,8 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Добавляем нового пользователя
-    $insert_sql = "INSERT INTO users (user, password) VALUES ('$username', '$password')";
+    $password_esc = $conn->real_escape_string($password);
+
+    $insert_sql = "INSERT INTO users (user, password) VALUES ('$username_esc', '$password_esc')";
     if ($conn->query($insert_sql) === TRUE) {
         $_SESSION['reg_success'] = "Регистрация успешна! Теперь вы можете войти.";
         header("Location: register.php");
@@ -45,3 +61,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $conn->close();
 ?>
+
+
