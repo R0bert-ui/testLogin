@@ -6,60 +6,61 @@ $dbname = "testlogin";
 $dbusername = "root";
 $dbpassword = "";
 
+// Подключение к базе
 $conn = new mysqli($servername, $dbusername, $dbpassword, $dbname);
 if ($conn->connect_error) {
     die("Ошибка подключения: " . $conn->connect_error);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = trim($_POST['password'] ?? '');
+// Получаем данные из формы
+$username = isset($_POST['username']) ? trim($_POST['username']) : '';
+$password = isset($_POST['password']) ? trim($_POST['password']) : '';
 
-    if ($username === '' || $password === '') {
-        $_SESSION['reg_error'] = "Пожалуйста, заполните все поля.";
-        header("Location: register.php");
-        exit();
-    }
-
-    // Проверка длины логина
-    if (mb_strlen($username) < 4 || mb_strlen($username) > 16) {
-        $_SESSION['reg_error'] = "Логин должен быть от 4 до 16 символов.";
-        header("Location: register.php");
-        exit();
-    }
-
-    // Проверка длины пароля
-    if (mb_strlen($password) < 8 || mb_strlen($password) > 16) {
-        $_SESSION['reg_error'] = "Пароль должен быть от 8 до 16 символов.";
-        header("Location: register.php");
-        exit();
-    }
-
-    $username_esc = $conn->real_escape_string($username);
-
-    $check_sql = "SELECT * FROM users WHERE user = '$username_esc' LIMIT 1";
-    $check_result = $conn->query($check_sql);
-    if ($check_result && $check_result->num_rows > 0) {
-        $_SESSION['reg_error'] = "Логин уже занят.";
-        header("Location: register.php");
-        exit();
-    }
-
-    $password_esc = $conn->real_escape_string($password);
-
-    $insert_sql = "INSERT INTO users (user, password) VALUES ('$username_esc', '$password_esc')";
-    if ($conn->query($insert_sql) === TRUE) {
-        $_SESSION['reg_success'] = "Регистрация успешна! Теперь вы можете войти.";
-        header("Location: register.php");
-        exit();
-    } else {
-        $_SESSION['reg_error'] = "Ошибка регистрации: " . $conn->error;
-        header("Location: register.php");
-        exit();
-    }
+// Проверка на пустые поля
+if (!$username || !$password) {
+    $_SESSION['reg_error'] = "Пожалуйста, заполните все поля!";
+    header("Location: register.php");
+    exit();
 }
 
+// Минимальная длина
+if (strlen($username) < 6) {
+    $_SESSION['reg_error'] = "Логин должен быть не менее 6 символов!";
+    header("Location: register.php");
+    exit();
+}
+
+if (strlen($password) < 8 || !preg_match('/\d/', $password)) {
+    $_SESSION['reg_error'] = "Пароль должен быть не менее 8 символов и содержать хотя бы одну цифру!";
+    header("Location: register.php");
+    exit();
+}
+
+// Проверка уникальности логина
+$stmt = $conn->prepare("SELECT id FROM users WHERE username=?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$stmt->store_result();
+
+if ($stmt->num_rows > 0) {
+    $_SESSION['reg_error'] = "Такой логин уже существует!";
+    header("Location: register.php");
+    exit();
+}
+$stmt->close();
+
+// Вставка нового пользователя (без хэширования)
+$role = 'user'; // по умолчанию пользователь
+$stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+$stmt->bind_param("sss", $username, $password, $role);
+
+if ($stmt->execute()) {
+    $_SESSION['reg_success'] = "Регистрация прошла успешно! Теперь войдите.";
+    header("Location: index.php");
+} else {
+    $_SESSION['reg_error'] = "Ошибка регистрации: " . $conn->error;
+    header("Location: register.php");
+}
+
+$stmt->close();
 $conn->close();
-?>
-
-
